@@ -1,0 +1,16 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: event-display
+  namespace: app-1
+  annotations:
+    serving.knative.openshift.io/enablePassthrough: "true"
+spec:
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      containers:
+        - image: gcr.io/knative-releases/knative.dev/eventing/cmd/event_display

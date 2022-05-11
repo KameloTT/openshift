@@ -1,0 +1,28 @@
+apiVersion: operator.knative.dev/v1alpha1
+kind: KnativeServing
+metadata:
+  name: knative-serving
+  namespace: knative-serving
+spec:
+  cluster-local-gateway: {}
+  controller-custom-certs:
+    name: ''
+    type: ''
+  deployments:
+    - annotations:
+        sidecar.istio.io/inject: 'true'
+        sidecar.istio.io/rewriteAppHTTPProbers: 'true'
+      name: activator
+    - annotations:
+        sidecar.istio.io/inject: 'true'
+        sidecar.istio.io/rewriteAppHTTPProbers: 'true'
+      name: autoscaler
+  ingress:
+    contour:
+      enabled: false
+    istio:
+      enabled: true
+    kourier:
+      enabled: false
+  knative-ingress-gateway: {}
+  registry: {}
