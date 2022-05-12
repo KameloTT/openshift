@@ -1,27 +1,3 @@
-#apiVersion: serving.knative.dev/v1
-#kind: Service
-#metadata:
-#  name: knative-app
-#  annotations:
-#    serving.knative.openshift.io/enablePassthrough: "true"
-#spec:
-#  traffic:
-#    - latestRevision: true
-#      percent: 100
-#  template:
-#    metadata:
-#      annotations:
-#        sidecar.istio.io/inject: "true"
-#        sidecar.istio.io/rewriteAppHTTPProbers: "true"
-#    spec:
-#      containers:
-#      - image: quay.io/openshift-knative/knative-eventing-sources-event-display:latest
-#        name: user-container
-#        readinessProbe:
-#          successThreshold: 1
-#          tcpSocket:
-#            port: 0
-#---
 apiVersion: "security.istio.io/v1beta1"
 kind: "PeerAuthentication"
 metadata:

@@ -26,3 +26,36 @@ spec:
       enabled: false
   knative-ingress-gateway: {}
   registry: {}
+---
+apiVersion: operator.knative.dev/v1alpha1
+kind: KnativeEventing
+metadata:
+  name: knative-eventing
+  namespace: knative-eventing
+spec:
+  registry: {}
+---
+piVersion: operator.serverless.openshift.io/v1alpha1
+kind: KnativeKafka
+metadata:
+  name: knative-kafka
+  namespace: knative-eventing
+spec:
+  broker:
+    defaultConfig:
+      authSecretName: ''
+      bootstrapServers: REPLACE_WITH_COMMA_SEPARATED_KAFKA_BOOTSTRAP_SERVERS
+      numPartitions: 10
+      replicationFactor: 3
+    enabled: true
+  channel:
+    authSecretName: ''
+    authSecretNamespace: ''
+    bootstrapServers: REPLACE_WITH_COMMA_SEPARATED_KAFKA_BOOTSTRAP_SERVERS
+    enabled: true
+  high-availability:
+    replicas: 1
+  sink:
+    enabled: true
+  source:
+    enabled: true

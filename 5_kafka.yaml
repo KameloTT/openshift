@@ -1,9 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
-namespace: kafka
 metadata:
   name: my-cluster
-  namespace: app-1
+  namespace: main-1
 spec:
   kafka:
     version: 3.1.0
@@ -40,7 +39,7 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   name: knative-demo-topic
-  namespace: app-1
+  namespace: main-1
   labels:
     strimzi.io/cluster: my-cluster
 spec:
@@ -58,7 +57,7 @@ metadata:
 spec:
   consumerGroup: knative-group
   bootstrapServers:
-  - my-cluster-kafka-bootstrap.app-1:9092 # note the kafka namespace
+  - my-cluster-kafka-bootstrap.main-1:9092
   topics:
   - knative-demo-topic
   sink:
