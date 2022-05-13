@@ -18,7 +18,7 @@ Make sure that Openshift cluster has following installed operators:
   * Red Hat OpenShift Serverless
   * Red Hat OpenShift Service Mesh
 
-2. Create some custom Project in Openshift cluster( file 0_certs.sh)
+2. Create some custom Projects in Openshift cluster( file 0_certs.sh)
   * main-1 (Project for Kafka cluster)
   * app-1  (Project with knative test application)
   * app-2  (Project with client which can send test events to knative application)
