@@ -44,6 +44,9 @@ https://docs.openshift.com/container-platform/4.8/serverless/admin_guide/serverl
 ```
 
 6. Deploy Knative-serving, Knative-eventing, KnativeKafka object
+
+:warning: Before deploying Knative make sure that ServiceMesh up and works
+
 ```
   oc apply -f 3_knative.yaml 
 ```
