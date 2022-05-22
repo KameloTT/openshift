@@ -20,7 +20,7 @@ kind: DestinationRule
 metadata:
   name: egressgateway-for-nginx
 spec:
-  host: istio-egressgateway.main-1.svc.cluster.local
+  host: istio-egressgateway.istio-system.svc.cluster.local
   subsets:
   - name: nginx
     trafficPolicy:
@@ -38,6 +38,9 @@ kind: VirtualService
 metadata:
   name: direct-nginx-through-egress-gateway
 spec:
+  exportTo:
+    - app-1
+    - istio-system
   hosts:
   - my-nginx.mesh-external.svc.cluster.local
   gateways:
@@ -50,7 +53,7 @@ spec:
       port: 80
     route:
     - destination:
-        host: istio-egressgateway.main-1.svc.cluster.local
+        host: istio-egressgateway.istio-system.svc.cluster.local
         subset: nginx
         port:
           number: 443

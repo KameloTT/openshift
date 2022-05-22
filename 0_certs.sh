@@ -7,3 +7,4 @@ oc create secret -n istio-system generic client-credential --from-file=tls.key=c
 oc new-project app-1
 oc new-project app-2
 oc new-project mesh-external
+oc create -n mesh-external secret generic nginx-ca-certs --from-file=example.com.crt
