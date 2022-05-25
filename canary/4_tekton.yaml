@@ -1,0 +1,290 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Condition
+metadata:
+  name: check-rate-count
+spec:
+  params:
+    - name: VS_NAME
+  check:
+    image: image-registry.openshift-image-registry.svc:5000/openshift/tools
+    script: |
+      count=0
+      cool=0
+      pod_count=0
+      while [ 100 -gt $count ]
+      do 
+        sleep 1
+        count=$((count+1))
+        export PODIP=`oc get po -l app=$(params.VS_NAME),version=v2 -o jsonpath='{range .items[?(.status.phase=="Running")].status}{.podIP} {end}'`
+        pod_count0=`echo $PODIP |wc -w`
+        if [ $pod_count0 -eq 0 ]
+        then
+          exit 1
+        fi
+        pod_count=$((pod_count+pod_count0))
+        for i in $PODIP
+        do
+          if [ `curl -s http://$i:15020/stats/prometheus --connect-timeout 1 |grep response |grep 'version="v2"' |grep 'istio_requests_total{response_code="200"' |awk {'print $2'}` -gt 0 ]
+          then
+            cool=$((cool+1))
+          fi
+        done
+      done
+
+      if [ $((pod_count%cool)) -gt 10 ]
+      then
+        exit 1
+      else
+        exit 0
+      fi
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-generate-vs
+  namespace: app-1
+spec:
+  workspaces:
+    - name: manifest-dir
+      description: >-
+        The workspace consisting of Istio manifests such as Gateway,
+        DestinationRule and VirtualService in case applying for the
+        first time.
+  params:
+    - name: VS_NAME
+      description: The virtual service name to be patched
+      type: string
+      default: ""
+    - name: V1_WEIGHT
+      description: The traffic percentage to be sent to version v1
+      type: string
+      default: ""
+    - name: V2_WEIGHT
+      description: The traffic percentage to be sent to version v2
+      type: string
+      default: ""
+  results:
+    - name: v1
+      description: new value
+    - name: v2
+      description: new value	  
+  steps:
+    - image: 'image-registry.openshift-image-registry.svc:5000/openshift/tools:latest'
+      name: step1-get-vs
+      workingDir: $(workspaces.manifest-dir.path)
+      resources: {}
+      env:
+        - name: OP1
+          value: $(params.V1_WEIGHT)
+        - name: OP2
+          value: $(params.V2_WEIGHT)
+      script: |
+        #!/bin/sh
+        cat << EOF > $(workspaces.manifest-dir.path)/virtualservice.yaml
+        kind: VirtualService
+        apiVersion: networking.istio.io/v1alpha3
+        metadata:
+          name: $(params.VS_NAME)
+          namespace: $(context.taskRun.namespace)
+        spec:
+          hosts:
+            - $(params.VS_NAME).$(context.taskRun.namespace).svc.cluster.local
+          http:
+            - route:
+                - destination:
+                    host: $(params.VS_NAME).$(context.taskRun.namespace).svc.cluster.local
+                    subset: v1
+                  weight: $(params.V1_WEIGHT)
+                - destination:
+                    host: $(params.VS_NAME).$(context.taskRun.namespace).svc.cluster.local
+                    subset: v2
+                  weight: $(params.V2_WEIGHT)
+        EOF
+        cat $(workspaces.manifest-dir.path)/virtualservice.yaml
+        oc apply -f $(workspaces.manifest-dir.path)/virtualservice.yaml
+        echo $((OP1 - 25)) >  $(results.v1.path)
+        echo $((OP2 + 25)) >  $(results.v2.path)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-canary
+  namespace: app-1
+spec:
+  params:
+    - name: VS_NAME
+      description: The virtual service name to be patched
+      type: string
+      default: ""
+    - name: V1_WEIGHT
+      description: The traffic percentage to be sent to version v1
+      type: string
+      default: ""
+    - name: V2_WEIGHT
+      description: The traffic percentage to be sent to version v2
+      type: string
+      default: ""
+  results:
+    - name: v1new
+      description: new value
+    - name: v2new
+      description: new value
+  steps:
+    - image: 'image-registry.openshift-image-registry.svc:5000/openshift/tools:latest'
+      name: step1-canary-up
+      resources: {}
+      script: |
+        #!/bin/sh
+        oc patch vs/$(params.VS_NAME) --type='merge' -p '{"spec":{"http":[{"route":[{"destination":{"host":"$(params.VS_NAME).$(context.taskRun.namespace).svc.cluster.local","subset":"v1"},"weight":$(params.V1_WEIGHT)},{"destination":{"host":"$(params.VS_NAME).$(context.taskRun.namespace).svc.cluster.local","subset":"v2"},"weight":$(params.V2_WEIGHT)}]}]}}'
+        echo $(($(params.V1_WEIGHT) - 25)) >  $(results.v1new.path)
+        echo $(($(params.V2_WEIGHT) + 25)) >  $(results.v2new.path)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: canary
+  namespace: app-1
+spec:
+  params:
+    - name: VS_NAME
+      description: The virtual service name to be patched
+      type: string
+      default: ""
+    - name: V1_WEIGHT
+      description: The traffic percentage to be sent to version v1
+      type: string
+      default: ""
+    - name: V2_WEIGHT
+      description: The traffic percentage to be sent to version v2
+      type: string
+      default: ""
+  workspaces:
+    - name: manifest-dir
+  tasks:
+    - name: generate-vs
+      taskRef:
+        kind: Task
+        name: task-generate-vs
+      workspaces:
+        - name: manifest-dir
+          workspace: manifest-dir
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(params.V1_WEIGHT)
+        - name: V2_WEIGHT
+          value: $(params.V2_WEIGHT)
+    - name: canary-25perc
+      taskRef:
+        kind: Task
+        name: task-canary
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(tasks.generate-vs.results.v1)
+        - name: V2_WEIGHT
+          value: $(tasks.generate-vs.results.v2)
+      runAfter:
+        - generate-vs
+    - name: canary-50perc
+      conditions:
+        - conditionRef: check-rate-count
+          params:
+            - name: VS_NAME
+              value: $(params.VS_NAME)
+      taskRef:
+        kind: Task
+        name: task-canary
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(tasks.canary-25perc.results.v1new)
+        - name: V2_WEIGHT
+          value: $(tasks.canary-25perc.results.v2new)
+      runAfter:
+        - canary-25perc
+    - name: canary-75perc
+      conditions:
+        - conditionRef: check-rate-count
+          params:
+          - name: VS_NAME
+            value: $(params.VS_NAME)
+      taskRef:
+        kind: Task
+        name: task-canary
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(tasks.canary-50perc.results.v1new)
+        - name: V2_WEIGHT
+          value: $(tasks.canary-50perc.results.v2new)
+      runAfter:
+        - canary-50perc
+    - name: canary-100perc
+      conditions:
+        - conditionRef: check-rate-count
+          params:
+          - name: VS_NAME
+            value: $(params.VS_NAME)
+      taskRef:
+        kind: Task
+        name: task-canary
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(tasks.canary-75perc.results.v1new)
+        - name: V2_WEIGHT
+          value: $(tasks.canary-75perc.results.v2new)
+      runAfter:
+        - canary-75perc
+  finally:
+    - name: rollback-canary
+      taskRef:
+        kind: Task
+        name: task-canary
+      params:
+        - name: VS_NAME
+          value: $(params.VS_NAME)
+        - name: V1_WEIGHT
+          value: $(params.V1_WEIGHT)
+        - name: V2_WEIGHT
+          value: $(params.V2_WEIGHT)
+      when:
+        - input: "$(tasks.canary-100perc.status)"
+          operator: in
+          values: [ "Failed", "None" ]
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: canary-svzmwx
+  namespace: app-1
+  labels:
+    tekton.dev/pipeline: canary
+spec:
+  params:
+    - name: VS_NAME
+      value: 'web-server'
+    - name: V1_WEIGHT
+      value: '100'
+    - name: V2_WEIGHT
+      value: '0'
+  pipelineRef:
+    name: canary
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: manifest-dir
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+
