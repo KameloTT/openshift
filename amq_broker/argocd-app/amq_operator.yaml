@@ -7,12 +7,6 @@ spec:
   destination:
     namespace: openshift-gitops
     server: https://kubernetes.default.svc
-  ignoreDifferences:
-    - group: '*'
-      kind: Subscription
-      name: amq-streams
-      jsonPointers:
-        - /spec/currentCSV
   project: default
   source:
     directory:
@@ -26,4 +20,3 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=false
-    - Validate=false
