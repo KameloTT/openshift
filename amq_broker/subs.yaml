@@ -3,11 +3,12 @@ kind: Subscription
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-  name: amq-broker
+  name: amq-streams
+  namespace: openshift-gitops
 spec:
-  channel: 7.8.x
+  channel: stable
   installPlanApproval: Manual
-  name: amq-broker-rhel8
+  name: amq-streams
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: amq-broker-operator.v7.8.2-opr-3-rhel8
+  startingCSV: amqstreams.v2.1.0-3
