@@ -8,7 +8,7 @@ spec:
     namespace: openshift-gitops
     server: https://kubernetes.default.svc
   ignoreDifferences:
-    - group: *
+    - group: '*'
       kind: Subscription
       name: amq-streams
       jsonPointers:
