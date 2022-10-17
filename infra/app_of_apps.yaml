@@ -1,22 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: amq-app
-  namespace: openshift-gitops
+  name: app-of-apps
+  namespace: cluster-level-argocd
 spec:
+  project: rosa-local-cluster-infra
   destination:
-    namespace: openshift-gitops
     server: https://kubernetes.default.svc
-  project: default
+    namespace: cluster-level-argocd
   source:
-    directory:
-      jsonnet: {}
-      recurse: true
-    path: amq_broker 
+    path: infra/
     repoURL: https://github.com/KameloTT/openshift.git
     targetRevision: argocd
   syncPolicy:
     automated:
+      allowEmpty: true
       selfHeal: true
-    syncOptions:
-    - CreateNamespace=false
+      prune: false
