@@ -4,12 +4,12 @@ metadata:
   name: app-of-apps
   namespace: cluster-level-argocd
 spec:
-  project: rosa-local-cluster-infra
+  project: default
   destination:
     server: https://kubernetes.default.svc
     namespace: cluster-level-argocd
   source:
-    path: infra/
+    path: infra/projects/
     repoURL: https://github.com/KameloTT/openshift.git
     targetRevision: argocd
   syncPolicy:
