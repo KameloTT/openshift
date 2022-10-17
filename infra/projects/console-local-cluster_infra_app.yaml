@@ -6,6 +6,7 @@ metadata:
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
+    namespace: '*'
   project: 'rosa-local-cluster-infra'
   source:
     path: 'infra/apps/console'
