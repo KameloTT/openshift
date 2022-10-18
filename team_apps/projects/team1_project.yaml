@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: team2-project
+  name: team1-project
   namespace: developer-argocd
 spec:
   clusterResourceWhitelist:
@@ -9,11 +9,11 @@ spec:
     kind: '*'
   description: rosa-local-cluster-apps project
   destinations:
-  - namespace: 'team2-dev'
+  - namespace: 'team1-dev'
     server: '*'
-  - namespace: 'team2-sit'
+  - namespace: 'team1-sit'
     server: '*'
-  - namespace: 'team2-prod'
+  - namespace: 'team1-prod'
     server: '*'
   namespaceResourceWhitelist:
   - group: '*'

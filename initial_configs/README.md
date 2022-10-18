@@ -1,7 +1,7 @@
-oc apply -f ns.yaml
+oc apply -f infra-ns.yaml -f developer-ns.yaml
 oc delete argocd --all -n opesnhift-gitops
 
-oc apply -f argocd-cr.yaml
+oc apply -f infra-argocd-cr.yaml -f developer-argocd-cr.yaml
 oc adm groups new OpenshiftAdmin
 oc adm groups add-users OpenshiftAdmin admin
 oc adm policy add-cluster-role-to-user cluster-admin -z cluster-level-argocd-argocd-application-controller -n cluster-level-argocd
@@ -10,3 +10,4 @@ oc adm groups new app-team1
 oc adm groups new app-team2
 oc adm groups add-users app-team1 user1
 oc adm groups add-users app-team2 user2
+oc adm policy add-cluster-role-to-user cluster-admin -z developer-argocd-argocd-application-controller -n developer-argocd

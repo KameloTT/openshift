@@ -1,0 +1,125 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: developer-argocd
+  namespace: developer-argocd
+spec:
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    insecure: true
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+    route:
+      enabled: true
+    service:
+      type: ''
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  initialSSHKnownHosts: {}
+  resourceCustomizations: |
+    route.openshift.io/Route:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/host
+    apps.openshift.io/DeploymentConfig:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/template/spec/containers/0/image
+        - /spec/template/spec/containers/1/image
+        - /spec/template/spec/containers/2/image
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+  applicationSet:
+    resources:
+      limits:
+        cpu: '4'
+        memory: 4Gi
+      requests:
+        cpu: 200m
+        memory: 1Gi
+  rbac:
+    policy: |
+      g, system:cluster-admins, role:admin
+      g, OpenshiftAdmin, role:admin
+      g, OpenshiftLeadDevelopers, role:admin
+    scopes: '[groups]'
+  repo:
+    resources:
+      limits:
+        cpu: '4'
+        memory: 4096Mi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  notifications:
+    enabled: true
+  sso:
+    dex:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+      openShiftOAuth: true
+    provider: dex
+  ha:
+    enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  kustomizeBuildOptions: '--load-restrictor LoadRestrictionsNone --enable-helm'
+  tls:
+    ca: {}
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  controller:
+    processors: {}
+    resources:
+      limits:
+        cpu: '5'
+        memory: 16Gi
+      requests:
+        cpu: '1'
+        memory: 2Gi
+    sharding:
+      enabled: true
+      replicas: 1

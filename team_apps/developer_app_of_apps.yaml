@@ -2,12 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: developer-app-of-apps
-  namespace: cluster-level-argocd
+  namespace: developer-argocd
 spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: cluster-level-argocd
+    namespace: developer-argocd
   source:
     path: team_apps/projects/
     repoURL: https://github.com/KameloTT/openshift.git
