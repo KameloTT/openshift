@@ -1,9 +1,0 @@
-apiVersion: console.openshift.io/v1
-kind: ConsoleNotification
-metadata:
-  name: cluster-console-notification
-spec:
-  backgroundColor: '#FF0000'
-  color: '#ffffff'
-  location: BannerTop
-  text: MGMT-CLUSTER
