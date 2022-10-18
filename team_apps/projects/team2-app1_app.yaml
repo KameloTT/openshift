@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: team2-app1-dev
+  namespace: cluster-level-argocd
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: 'team1-dev'
+  project: 'team1-project'
+  source:
+    path: 'apps/app1/'
+    repoURL: 'https://github.com/KameloTT/openshift.git'
+    targetRevision: argocd-developers-team2
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: false
+      selfHeal: true

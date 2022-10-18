@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team2-project
+  namespace: cluster-level-argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: rosa-local-cluster-infra project
+  destinations:
+  - namespace: 'team2-dev'
+    server: '*'
+  - namespace: 'team2-sit'
+    server: '*'
+  - namespace: 'team2-prod'
+    server: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  sourceRepos:
+  - '*'
