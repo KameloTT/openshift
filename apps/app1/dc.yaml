@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-app
+  name: frontend-app
   labels:
-    app: nginx
+    app: frontend
   annotations:
     argocd.argoproj.io/sync-wave: '2'
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: frontend
   template:
     metadata:
       labels:
-        app: nginx
+        app: frontend
     spec:
       containers:
-      - name: nginx
+      - name: frontend
         image: nginx:1.14.2
         ports:
         - containerPort: 80
