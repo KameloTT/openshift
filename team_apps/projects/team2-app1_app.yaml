@@ -6,8 +6,8 @@ metadata:
 spec:
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: 'team1-dev'
-  project: 'team1-project'
+    namespace: 'team2-dev'
+  project: 'team2-project'
   source:
     path: 'apps/app1/'
     repoURL: 'https://github.com/KameloTT/openshift.git'
