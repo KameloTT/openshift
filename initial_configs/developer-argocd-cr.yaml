@@ -66,9 +66,24 @@ spec:
         memory: 1Gi
   rbac:
     policy: |
-      g, system:cluster-admins, role:admin
+      p, role:nope,  logs,        get, default/*, allow
+
+      p, role:team1, applications,  *, team1-dev/*, allow
+      p, role:team1, clusters,    get, *,           allow
+      p, role:team1, repositories,  *, *,           allow
+      p, role:team1, logs,        get, team1-dev/*, allow
+      p, role:team1, exec,          *, team1-dev/*, allow
+
+      p, role:team2, applications,  *, team2-dev/*, allow
+      p, role:team2, clusters,    get, *,           allow
+      p, role:team2, repositories,  *, *,           allow
+      p, role:team2, logs,        get, team2-dev/*, allow
+      p, role:team2, exec,          *, team2-dev/*, allow
+
       g, OpenshiftAdmin, role:admin
-      g, OpenshiftLeadDevelopers, role:admin
+      g, app-team1, role:team1
+      g, app-team2, role:team2
+      defaultPolicy: nope
     scopes: '[groups]'
   repo:
     resources:
@@ -118,8 +133,8 @@ spec:
         cpu: '5'
         memory: 16Gi
       requests:
-        cpu: '1'
-        memory: 2Gi
+        cpu: '500m'
+        memory: 1Gi
     sharding:
       enabled: true
       replicas: 1
