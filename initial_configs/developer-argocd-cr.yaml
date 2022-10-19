@@ -66,7 +66,7 @@ spec:
         memory: 1Gi
   rbac:
     policy: |
-      p, role:nope,  logs,        get, default/*, allow
+      p, role:nope,  logs  get, default/*,   allow
 
       p, role:team1, applications,  *, team1-dev/*, allow
       p, role:team1, clusters,    get, *,           allow
@@ -83,7 +83,7 @@ spec:
       g, OpenshiftAdmin, role:admin
       g, app-team1, role:team1
       g, app-team2, role:team2
-      defaultPolicy: nope
+    defaultPolicy: nope
     scopes: '[groups]'
   repo:
     resources:
