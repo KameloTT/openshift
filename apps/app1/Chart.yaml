@@ -1,5 +1,8 @@
 apiVersion: v2
 name: nginx
 type: application
-version: 1.0.0
-sources: https://charts.bitnami.com/bitnami
+version: 1.23.1
+dependencies:
+  - name: nginx
+    version: "13.2.11"
+    repository: https://charts.bitnami.com/bitnami
