@@ -1,3 +1,3 @@
-app_values: |
+nginx:
   service:
     type: ClusterIP
