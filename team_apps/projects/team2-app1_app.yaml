@@ -13,8 +13,8 @@ spec:
     repoURL: 'https://github.com/KameloTT/openshift.git'
     targetRevision: argocd-developers-team2
     helm:
-      valueFiles:
-      - values.yaml 
+      value: |
+      {{app_values}}
   syncPolicy:
     automated:
       allowEmpty: true
