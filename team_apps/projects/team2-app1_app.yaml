@@ -12,9 +12,6 @@ spec:
     path: 'apps/app1/'
     repoURL: 'https://github.com/KameloTT/openshift.git'
     targetRevision: argocd-developers-team2
-    helm:
-      values: |-
-        {{app_values}}
   syncPolicy:
     automated:
       allowEmpty: true
