@@ -12,6 +12,6 @@ spec:
     name: team2-app1-dev-nginx
     weight: 100
   port:
-    targetPort: 80
+    targetPort: http
   wildcardPolicy: None
 
