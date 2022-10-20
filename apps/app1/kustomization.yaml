@@ -1,5 +1,0 @@
-resources:
-- ns.yaml
-- dc.yaml
-- svc.yaml
-- route.yaml
