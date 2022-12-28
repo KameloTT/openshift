@@ -1,0 +1,27 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+ labels:
+   machineconfiguration.openshift.io/role: worker
+ name: 50-worker-signatures
+spec:
+ config:
+   ignition:
+     version: 2.2.0
+   storage:
+     files:
+     - path: /etc/containers/policy.json
+       mode: 0644
+       filesystem: root
+       contents:
+         source: data:,%7B%0A%20%20%20%20%22default%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22type%22%3A%20%22insecureAcceptAnything%22%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22transports%22%3A%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22docker%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22quay.io%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22type%22%3A%20%22signedBy%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22keyType%22%3A%20%22GPGKeys%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22keyPath%22%3A%20%22/etc/pki/developers/signer-key.pub%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22docker-daemon%22%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22%22%3A%20%5B%7B%22type%22%3A%22insecureAcceptAnything%22%7D%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%7D%0A
+     - path: /etc/containers/registries.d/default.yaml
+       mode: 0644
+       filesystem: root
+       contents:
+         source: data:,docker%3A%0A%20%20quay.io%3A%0A%20%20%20%20sigstore%3A%20http%3A//signature-server-signature-server.apps.cluster-g29j8.g29j8.sandbox2409.opentlc.com/images%0A
+     - path: /etc/pki/developers/signer-key.pub
+       mode: 0644
+       filesystem: root
+       contents:
+         source: data:,-----BEGIN%20PGP%20PUBLIC%20KEY%20BLOCK-----%0A%0AmQENBGOrSRUBCADcyMIJECy4BFrhmnwvAvUyhqYc0ZP1g2RW5RRhmBu%2B7WOZwSzm%0A5DL8xCUcP4sNU4%2BGaFCO8pkGYJ/hXxrYCjheM4ROn4KI6Z%2BoHK4x9FRjKaq/2BTJ%0A7KRA9ek3mHvyUNutpcYzoggkddmOhY61sm89EM51SWLvm9JOHcaugL2h6aGBs7uc%0Ao2ktDd/nUdqR226gW4IOwTjjkK0A5MB%2BwomS51rqYLkV0ZgHQlMTpvWypTuUqqET%0AUdN77IPLlPGuQPoeigbp92G78XdV7NwaHueVPT2OYFuud0SDNZTzTn6TTK31uUz2%0A7iZpCnM3KvfyuxCL3h8wRmC9yP1r4urmTsRjABEBAAG0KUFsZXhhbmRyIFZpc2hu%0AaWFrb3YgPGF2aXNobmlhQHJlZGhhdC5jb20%2BiQFUBBMBCAA%2BFiEEgWrlNmtpnMQY%0AQFJFxGX5Jhlrzu8FAmOrSRUCGwMFCQPCZwAFCwkIBwIGFQoJCAsCBBYCAwECHgEC%0AF4AACgkQxGX5Jhlrzu9WDAf%2BKcVNBEr5jEVzO5amGJGfQl4LLxDnWOM4lOCRW24h%0AGW4DR0hLBlL/Z5jEfyRx7F4/Z//ixIVzu9SNocPY6pKceOkb6UpZFlV2srWXEEG9%0Aa05SFvKgDQdFCW6XDQ58plM%2BaoZKz2j%2B/7EZd2EBqIkSikN1rkuABaFwt4Gdq977%0AYPz66CMT0k5fAmVvLXpm9/GF9VqWEFB0BZ0eDpHly3QM7HXJySB4MWoYsyuMlE84%0Afz0nUhAHxmyaBGRZk%2BJfSSo7UEwVupBH0L7uXhcCGDhSJXRdtBRC33Oa6kCdtvHq%0A%2BYINM9gI9KMHbR1nS3NdnRM0jsM3ADJxScp0aeVbp%2Bq0x7kBDQRjq0kVAQgAqGHZ%0AP4i1nda1BC85%2BUHkETX0IsQ0U0CbLMX%2BZfRNnw06%2BoNID1%2BTmDh56TdNqy/Rqkt0%0A8iWJUdQUFAWU9R3WiUJSPxA708wMrUvmDwF7A5uf4BFdXIRDUYUDeDRFYWNGjVm7%0AkXnKolcj6kPbuaPFxHU/RZ4Wzgz0R3KsoEnrxDIimQoGGhULhqpLa1x3FsYUSGD2%0AYqqrZF1T5zNUn2hW2DQBVjQuJsdJPKlKZs2RarVqATmVWPz5K3DsCDuyWGmjT5sz%0AMHm/ZY40TxbAZBz8VwvoUE9Ugo4tXC781kOs0X3e3aLg//7k3oDPMCRMOL4VluKX%0A/Sw7H/fMTNBEE/snlwARAQABiQE8BBgBCAAmFiEEgWrlNmtpnMQYQFJFxGX5Jhlr%0Azu8FAmOrSRUCGwwFCQPCZwAACgkQxGX5Jhlrzu%2Blgwf%2BLhtIfoOzp2mgahkFztBT%0AsEI6ExHbuqBv03b9lDheKI7YID6GgnbsQPTTz5WQs1DSR%2BOIhR0Wnd5L983pw7Bq%0A5xB3jctuRkBV7BXrn7r/L4Jr8comhaj9ZY1J6Q91rglvte/hg9eXpPrD0bqa4/Ej%0AKG6xuYWpfEbR0JqKnGcQGDOw1%2B3ze2uA7J8GLpMfS4iE9tdrnyQeXIp6uchzsCm1%0ACdAv%2BDXg1t84WLk6DPvg27Ap5TuDNjgUtaDzVzYSAl%2BVMSdglOyz38KPO9xaA64Q%0AdyHDMaX7UM3LJ9AN8%2BZCg4C0ntZ/B6NXb/rkqkoVxarPg8oW/pYe%2B56O2SpKiKnm%0ACQ%3D%3D%0A%3DPnxf%0A-----END%20PGP%20PUBLIC%20KEY%20BLOCK-----%0A
