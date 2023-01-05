@@ -7,7 +7,7 @@
     "transports":
         {
             "docker": {
-              "quay.io": [
+              "quay.io/avishnia": [
                 {
                   "type": "signedBy",
                   "keyType": "GPGKeys",

@@ -1,3 +1,3 @@
 docker:
-  quay.io:
-    sigstore: http://signature-server-signature-server.apps.cluster-g29j8.g29j8.sandbox2409.opentlc.com/images
+  quay.io/avishnia:
+    sigstore: http://signature-server-signature-server.apps.ocpvish.sandbox2217.opentlc.com
