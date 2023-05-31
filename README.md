@@ -1,4 +1,4 @@
-# Description
+# Description 
 
 This project is describe how to integrate Red Hat Serverless, Red Hat ServiceMesh and Red Hat AMQ Streams with Kafka.
 
